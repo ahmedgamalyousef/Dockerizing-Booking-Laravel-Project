@@ -31,8 +31,6 @@ services:
       MYSQL_DATABASE: booking
       MYSQL_USER: bookinguser
       MYSQL_PASSWORD: Booking@1234
-    ports:
-      - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
 
