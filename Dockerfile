@@ -1,5 +1,6 @@
-FROM php:7.4-apache
+FROM php:7.4-fpm
 
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
@@ -10,17 +11,24 @@ RUN apt-get update && apt-get install -y \
     curl \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-RUN a2enmod rewrite
-
+# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-COPY . /var/www/html
-
+# Set working directory
 WORKDIR /var/www/html
 
+# Copy project files
+COPY . /var/www/html
+
+# Fix Git ownership issue
+RUN git config --global --add safe.directory /var/www/html
+
+# Install PHP dependencies
 RUN composer install --no-scripts --no-autoloader
 RUN composer dump-autoload
 
+# Permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-EXPOSE 80
+EXPOSE 9000
+CMD ["php-fpm"]
